@@ -20,91 +20,135 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.widget.addTextChangedListener
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.example.texttemplateapp.ui.theme.TextTemplateAppTheme
 
 class MainActivity : ComponentActivity() {
+    private lateinit var viewModel:
+        TemplateViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val templatePattern = TemplatePattern(
-            "こんにちは、{name}。\n私の好きなゲームは {game} です。"
+        val previewText = findViewById<TextView>(R.id.previewText)
+        val container = findViewById<LinearLayout>(R.id.container)
+        val copyButton = findViewById<Button>(R.id.copyButton)
+
+        viewModel = ViewModelProvider(this)[
+            TemplateViewModel::class.java
+        ]
+
+        viewModel.loadTemplate(
+            "こんにちは、{name}。\n好きなゲームは {game} です。"
         )
-        val templateView = TemplateView(
-            findViewById<TextView>(R.id.previewText),
-            findViewById<Button>(R.id.copyButton),
-            findViewById<LinearLayout>(R.id.container),
-            templatePattern
-        )
 
-        templateView.SetContainer(
-            this,
-            templatePattern.placeHoldersList,
-            templatePattern.placeHoldersMap
-        )
-        templateView.copyButton.setOnClickListener {
-            val clipboard =
-                getSystemService(Context.CLIPBOARD_SERVICE)
-                    as ClipboardManager
-
-            val clip = ClipData.newPlainText(
-                "text",
-                templateView.preViewText.text.toString()
-            )
-
-            clipboard.setPrimaryClip(clip)
-
-            // finish()
+        // LiveData監視
+        viewModel.previewText.observe(this) {
+            previewText.text = it
         }
-    }
-}
-class TemplatePattern (
-    val templateText: String
-) {
-    val currentIndex = 0
-    val placeHoldersMap = mutableMapOf<String, String>()
-    val placeHoldersList = mutableListOf<String>()
 
-    init {
-        val regex = "\\{(.*?)\\}".toRegex()
-
-        for (match in regex.findAll(templateText)) {
-            placeHoldersList.add(match.groupValues[1])
-            placeHoldersMap[match.groupValues[1]] = ""
-        }
-    }
-    fun buildText(): String {
-        val regex = "\\{(.*?)\\}".toRegex()
-
-        return regex.replace(templateText) { match ->
-            val key = match.groupValues[1]
-            placeHoldersMap[key] ?: ""
-        }
-    }
-}
-class TemplateView (
-    val preViewText: TextView,
-    val copyButton: Button,
-    val container: LinearLayout,
-
-    val templatePattern:TemplatePattern
-) {
-    fun SetContainer(
-        context: Context,
-        keys: List<String>,
-        map: MutableMap<String, String>
-    )
-    {
-        for (key in keys) {
-            val editText = EditText(context)
+        // EditText生成
+        for (key in viewModel.getPlaceholderKeys()) {
+            val editText = EditText(this)
             editText.hint = key
-
             editText.addTextChangedListener {
-                map[key] = editText.text.toString()
-                preViewText.text = templatePattern.buildText()
+                viewModel.updatePlaceholder(
+                    key,
+                    it.toString()
+                )
             }
 
             container.addView(editText)
         }
+
+        // コピー
+        copyButton.setOnClickListener {
+            val clipboard =
+                getSystemService(Context.CLIPBOARD_SERVICE)
+                    as ClipboardManager
+
+            val clip =
+                ClipData.newPlainText(
+                    "text",
+                    previewText.text
+                )
+
+            clipboard.setPrimaryClip(clip)
+
+            finish()
+        }
+    }
+}
+private val TEMPLATE_REGEX = "\\{(.*?)\\}".toRegex()
+data class TemplateState (
+    val templateText: String,
+    var placeholders: Map<String, String>
+) {
+    companion object {
+        fun create(
+            templateText: String
+        ): TemplateState {
+            val map = mutableMapOf<String, String>()
+            for (match in TEMPLATE_REGEX.findAll(templateText)) {
+                map[match.groupValues[1]] = ""
+            }
+
+            return TemplateState(
+                templateText,
+                map
+            )
+        }
+    }
+
+    fun buildText(): String {
+        return TEMPLATE_REGEX.replace(templateText) { match ->
+            val key = match.groupValues[1]
+            placeholders[key] ?: ""
+        }
+    }
+}
+
+class TemplateViewModel : ViewModel() {
+    private val _previewText = MutableLiveData("")
+
+    val previewText: LiveData<String>
+        get() = _previewText
+
+    private lateinit var templateState: TemplateState
+
+    fun loadTemplate(template: String) {
+        templateState = TemplateState.create(template)
+
+        updatePreview()
+    }
+
+    fun updatePlaceholder(
+        key: String,
+        value: String
+    ) {
+        val newMap = templateState.placeholders.toMutableMap()
+
+        newMap[key] = value
+
+        templateState = templateState.copy(
+            placeholders = newMap
+        )
+
+        updatePreview()
+    }
+
+    private fun updatePreview() {
+        _previewText.value = templateState.buildText()
+    }
+
+    fun getPlaceholderKeys(): List<String> {
+        return templateState
+            .placeholders
+            .keys
+            .toList()
     }
 }
