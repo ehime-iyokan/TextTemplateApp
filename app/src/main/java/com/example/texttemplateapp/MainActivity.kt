@@ -2,29 +2,17 @@ package com.example.texttemplateapp
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.PinnableContainer
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.texttemplateapp.ui.theme.TextTemplateAppTheme
 
 // MVVMアーキテクチャを採用している
 // Model    : TemplateState
@@ -73,7 +61,7 @@ class MainActivity : ComponentActivity() {
         // コピー
         copyButton.setOnClickListener {
             val clipboard =
-                getSystemService(Context.CLIPBOARD_SERVICE)
+                getSystemService(CLIPBOARD_SERVICE)
                     as ClipboardManager
 
             val clip =
