@@ -26,25 +26,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // XMLからUI構成要素を取得
-        val previewText = findViewById<TextView>(R.id.previewText)
-        val container = findViewById<LinearLayout>(R.id.container)
-        val copyButton = findViewById<Button>(R.id.copyButton)
-
+        // ViewModel 準備
         viewModel = ViewModelProvider(this)[
             TemplateViewModel::class.java
         ]
-
         viewModel.loadTemplate(
             "こんにちは、{name}。\n好きなゲームは {game} です。"
         )
 
-        // LiveData監視
-        viewModel.previewText.observe(this) {
-            previewText.text = it
-        }
-
-        // EditText生成
+        // プレースホルダー入力欄生成
+        val container = findViewById<LinearLayout>(R.id.container)
         for (key in viewModel.getPlaceholderKeys()) {
             val editText = EditText(this)
             editText.hint = key
@@ -58,18 +49,23 @@ class MainActivity : ComponentActivity() {
             container.addView(editText)
         }
 
-        // コピー
+        // プレビューテキスト欄生成
+        val previewText = findViewById<TextView>(R.id.previewText)
+        viewModel.previewText.observe(this) {
+            previewText.text = it
+        }
+
+        // コピーボタン生成
+        val copyButton = findViewById<Button>(R.id.copyButton)
         copyButton.setOnClickListener {
             val clipboard =
                 getSystemService(CLIPBOARD_SERVICE)
                     as ClipboardManager
-
             val clip =
                 ClipData.newPlainText(
                     "text",
                     previewText.text
                 )
-
             clipboard.setPrimaryClip(clip)
 
             finish()
@@ -108,12 +104,11 @@ data class TemplateState (
 }
 
 class TemplateViewModel : ViewModel() {
+    private lateinit var templateState: TemplateState
     private val _previewText = MutableLiveData("")
-
     val previewText: LiveData<String>
         get() = _previewText
 
-    private lateinit var templateState: TemplateState
 
     fun loadTemplate(template: String) {
         templateState = TemplateState.create(template)
