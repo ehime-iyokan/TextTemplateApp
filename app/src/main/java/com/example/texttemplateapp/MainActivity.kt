@@ -99,7 +99,8 @@ data class TemplateState (
         ): TemplateState {
             val map = mutableMapOf<String, String>()
             for (match in TEMPLATE_REGEX.findAll(templateText)) {
-                map[match.groupValues[1]] = ""
+                val matchValue = match.groupValues[1]
+                map[matchValue] = matchValue
             }
 
             return TemplateState(
