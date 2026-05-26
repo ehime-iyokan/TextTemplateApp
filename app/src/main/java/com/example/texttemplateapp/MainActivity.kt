@@ -111,6 +111,7 @@ data class TemplateState (
     }
 
     fun buildText(): String {
+        // マッチするたびに {} の処理が実行される
         return TEMPLATE_REGEX.replace(templateText) { match ->
             val key = match.groupValues[1]
             placeholders[key] ?: ""
