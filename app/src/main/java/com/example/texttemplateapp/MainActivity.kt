@@ -26,6 +26,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.texttemplateapp.ui.theme.TextTemplateAppTheme
 
+// MVVMアーキテクチャを採用している
+// Model    : TemplateState
+// ViewModel: TemplateViewModel
+// View     : MainActivity + XML
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel:
         TemplateViewModel
@@ -34,6 +38,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // XMLからUI構成要素を取得
         val previewText = findViewById<TextView>(R.id.previewText)
         val container = findViewById<LinearLayout>(R.id.container)
         val copyButton = findViewById<Button>(R.id.copyButton)
@@ -130,10 +135,9 @@ class TemplateViewModel : ViewModel() {
         key: String,
         value: String
     ) {
+        // マップ(Placeholder)に対して要素追加
         val newMap = templateState.placeholders.toMutableMap()
-
         newMap[key] = value
-
         templateState = templateState.copy(
             placeholders = newMap
         )
