@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">TextTemplateApp</string>
     <string name="copy">コピー</string>
+    <string name="template">テンプレート</string>
 </resources>
