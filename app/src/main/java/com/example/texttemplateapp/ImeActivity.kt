@@ -4,6 +4,7 @@ import android.content.Intent
 import android.inputmethodservice.InputMethodService
 import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
 
 class MyImeService : InputMethodService() {
     override fun onCreateInputView(): View {
@@ -20,6 +21,7 @@ class MyImeService : InputMethodService() {
 
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
+            switchToNextInputMethod(false)
         }
 
         return view
