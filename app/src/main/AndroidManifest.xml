@@ -12,9 +12,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TextTemplateApp">
         <activity
-            android:name=".MainActivity"
+            android:name=".ManageTemplateActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.TextTemplateApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,8 +22,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".UseTemplateActivity" />
+
         <service
-            android:name=".MyImeService"
+            android:name=".SelectTemplateService"
             android:permission="android.permission.BIND_INPUT_METHOD"
             android:exported="true">
 

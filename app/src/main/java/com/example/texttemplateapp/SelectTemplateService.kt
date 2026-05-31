@@ -4,12 +4,11 @@ import android.content.Intent
 import android.inputmethodservice.InputMethodService
 import android.view.View
 import android.widget.Button
-import android.widget.LinearLayout
 
-class MyImeService : InputMethodService() {
+class SelectTemplateService : InputMethodService() {
     override fun onCreateInputView(): View {
         val view = layoutInflater.inflate(
-            R.layout.ime_view,
+            R.layout.select_template_service,
             null,
             false
         )
@@ -17,7 +16,7 @@ class MyImeService : InputMethodService() {
             view.findViewById<Button>(R.id.openButton)
 
         button.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, UseTemplateActivity::class.java)
 
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)

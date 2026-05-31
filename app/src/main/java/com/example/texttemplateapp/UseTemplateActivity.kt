@@ -18,13 +18,13 @@ import androidx.lifecycle.ViewModelProvider
 // Model    : TemplateState
 // ViewModel: TemplateViewModel
 // View     : MainActivity + XML
-class MainActivity : ComponentActivity() {
+class UseTemplateActivity : ComponentActivity() {
     private lateinit var viewModel:
         TemplateViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.use_template_activity)
 
         // ViewModel 準備
         viewModel = ViewModelProvider(this)[
